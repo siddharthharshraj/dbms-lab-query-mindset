@@ -1,0 +1,1061 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Think in SQL · DBMS Lab Companion</title>
+<meta name="description" content="A calm 5-page method for turning any application question into a correct SQL query, plus 5 practice questions with locked answers. Built for CSE353 DBMS Lab.">
+<style>
+:root{
+  --paper:#f6f3ec; --card:#ffffff; --ink:#1b2230; --muted:#5b6474; --line:#e4dfd3;
+  --accent:#c2711a; --accent-soft:#fbf1e2;
+  --think:#0f766e; --think-soft:#e6f4f1;
+  --trap:#b42318; --trap-soft:#fdecea;
+  --key:#3f51c9; --key-soft:#e9ecfb;
+  --code-bg:#1e2430; --code-ink:#e6e9f0; --kw:#8fc7ff; --fn:#f0c674; --str:#a8e06a; --num:#f5a97f; --cm:#8a93a6;
+  --null:#fde68a; --null-ink:#6b5300;
+  --ok:#1a7f4b;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --paper:#0f131a; --card:#161c26; --ink:#e7eaf0; --muted:#a3acbd; --line:#2a3342;
+    --accent:#e3993f; --accent-soft:#2b2214;
+    --think:#3cc2b3; --think-soft:#10302c;
+    --trap:#ff8a7a; --trap-soft:#3a1a17;
+    --key:#8b9cff; --key-soft:#1c2246;
+    --code-bg:#0b0f16; --null:#4a3b0a; --null-ink:#f2d27a;
+    --ok:#4ade80;
+  }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font:17px/1.62 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Inter,"Helvetica Neue",Arial,sans-serif;padding:0 18px 120px;overflow-x:hidden}
+.wrap{max-width:720px;margin:0 auto}
+h1,h2,h3,h4{font-family:"Iowan Old Style","Palatino Linotype",Palatino,Georgia,"Times New Roman",serif;line-height:1.2;margin:0 0 .4em;letter-spacing:-.01em}
+h1{font-size:clamp(2rem,7vw,3rem);font-weight:700}
+h2{font-size:clamp(1.5rem,5vw,2rem);margin-top:1.6em;padding-top:.4em}
+h3{font-size:1.25rem;margin-top:1.4em}
+h4{font-size:1.05rem;margin-top:1.2em;font-family:inherit;font-weight:700}
+p{margin:.6em 0}
+a{color:var(--key)}
+strong{font-weight:700}
+small,.muted{color:var(--muted)}
+ul,ol{padding-left:1.25em}
+li{margin:.3em 0}
+hr{border:0;border-top:1px solid var(--line);margin:2em 0}
+code{font-family:ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;font-size:.92em;background:var(--key-soft);padding:.08em .35em;border-radius:6px;color:var(--ink)}
+pre{background:var(--code-bg);color:var(--code-ink);padding:14px 14px 14px 14px;border-radius:12px;overflow-x:auto;font-size:14px;line-height:1.55;position:relative;margin:.8em 0;-webkit-overflow-scrolling:touch}
+pre code{background:none;padding:0;color:inherit;font-size:inherit}
+pre .kw{color:var(--kw);font-weight:600} pre .fn{color:var(--fn)} pre .str{color:var(--str)} pre .num{color:var(--num)} pre .cm{color:var(--cm);font-style:italic}
+.copy{position:absolute;top:8px;right:8px;font:600 12px/1 inherit;padding:6px 9px;border-radius:8px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.08);color:#fff;cursor:pointer}
+.copy:active{transform:scale(.96)}
+
+/* hero */
+.hero{padding:34px 0 10px}
+.eyebrow{display:inline-block;font-size:12.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:10px}
+.lede{font-size:1.15rem;color:var(--muted);margin:.4em 0 1em}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0 4px}
+.chip{font-size:13px;padding:5px 11px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--muted)}
+
+/* nav */
+.nav{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--paper) 86%,transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);margin:12px -18px 0;padding:10px 18px;overflow-x:auto;white-space:nowrap;display:flex;gap:8px;border-bottom:1px solid var(--line);scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.nav a{flex:0 0 auto;padding:7px 13px;border-radius:999px;border:1px solid var(--line);background:var(--card);font-size:14px;font-weight:600;text-decoration:none;color:var(--ink)}
+.nav a:active{background:var(--accent-soft)}
+
+/* cards & callouts */
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;margin:18px 0;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+.callout{border-left:4px solid var(--accent);background:var(--accent-soft);padding:12px 14px;border-radius:0 12px 12px 0;margin:1em 0}
+.callout.think{border-color:var(--think);background:var(--think-soft)}
+.callout.trap{border-color:var(--trap);background:var(--trap-soft)}
+.callout.key{border-color:var(--key);background:var(--key-soft)}
+.callout > .lbl{display:block;font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;margin-bottom:4px}
+.callout.think > .lbl{color:var(--think)} .callout.trap > .lbl{color:var(--trap)} .callout.key > .lbl{color:var(--key)} .callout:not(.think):not(.trap):not(.key) > .lbl{color:var(--accent)}
+.callout p:first-of-type{margin-top:0} .callout p:last-child{margin-bottom:0}
+.page-tag{font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:2.2em 0 -1.2em}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:.8em 0;border-radius:12px;border:1px solid var(--line);-webkit-overflow-scrolling:touch}
+table{border-collapse:collapse;width:100%;font-size:14px;background:var(--card)}
+th,td{border-bottom:1px solid var(--line);padding:7px 10px;text-align:left;white-space:nowrap;vertical-align:top}
+th{background:var(--paper);font-weight:700;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted)}
+tr:last-child td{border-bottom:0}
+td.null{background:var(--null);color:var(--null-ink);font-style:italic}
+td.mono,th.mono{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:13px}
+.tbl-cap{font-size:13px;color:var(--muted);margin:-.4em 0 .8em 2px}
+table.radar td:first-child{white-space:normal;min-width:170px}
+table.radar td{white-space:normal}
+table.radar code{white-space:nowrap}
+.mini{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.mini{grid-template-columns:1fr 1fr}}
+.mini .tbl-wrap{margin:0}
+.mini h4{margin:.2em 0 .4em}
+.count{font-size:13px;color:var(--muted);margin:.35em 2px 0}
+
+/* pipeline stepper */
+.pipe{list-style:none;padding:0;margin:.6em 0;position:relative}
+.pipe::before{content:"";position:absolute;left:21px;top:26px;bottom:26px;width:2px;background:var(--line)}
+.pipe li{display:flex;gap:14px;align-items:flex-start;padding:7px 0;position:relative;margin:0}
+.pipe .n{flex:0 0 44px;height:44px;border-radius:50%;background:var(--accent);color:#fff;display:grid;place-items:center;font-weight:800;font-family:"Iowan Old Style",Palatino,Georgia,serif;font-size:19px;z-index:1;box-shadow:0 0 0 4px var(--paper)}
+.pipe .t{padding-top:4px}
+.pipe .t b{display:block;font-size:1.02rem}
+.pipe .t code{font-weight:700}
+.pipe .t span{color:var(--muted);font-size:.95rem}
+
+/* figures */
+.fig{width:100%;height:auto;display:block;margin:.6em auto}
+.fig .bx{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.fig .hd{fill:var(--paper)}
+.fig text{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:11.5px;fill:var(--ink)}
+.fig text.ttl{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:800;font-size:12.5px;letter-spacing:.06em}
+.fig text.pk{fill:var(--key);font-weight:700}
+.fig text.fk{fill:var(--accent);font-weight:700}
+.fig text.lbl{fill:var(--muted);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-size:10.5px}
+.fig .arrow{fill:none;stroke:var(--accent);stroke-width:2}
+.fig .ah{fill:var(--accent)}
+.figcap{font-size:13.5px;color:var(--muted);text-align:center;margin:-.2em 0 1em}
+.fig .ring{fill:none;stroke:var(--key);stroke-width:2} .fig .ring2{fill:none;stroke:var(--accent);stroke-width:2}
+.fig .band rect{fill:var(--accent-soft);stroke:var(--accent);stroke-width:1.5}
+.fig .band.plate rect{fill:var(--think-soft);stroke:var(--think)}
+.fig .band.out rect{fill:var(--key-soft);stroke:var(--key)}
+.fig .band text{font-weight:700;font-size:11px}
+.fig .cnt{fill:var(--muted);font-size:11px;font-weight:700}
+.fig .chip{stroke:var(--line);stroke-width:1} .fig .c1{fill:var(--key-soft)} .fig .c2{fill:var(--think-soft)} .fig .c3{fill:var(--accent-soft)} .fig .c4{fill:var(--trap-soft)}
+.fig .plate-r{fill:var(--card);stroke:var(--think);stroke-width:1.5;stroke-dasharray:4 3}
+.fig .link{stroke:var(--line);stroke-width:1.5;fill:none}
+.fig .res{fill:var(--card);stroke:var(--line);stroke-width:1}
+.fig .vc{fill:none;stroke:var(--key);stroke-width:1.8} .fig .vf{fill:var(--accent);opacity:.45}
+.fig .vt{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;font-weight:800;font-size:11px}
+.fig .hub{stroke:var(--accent);stroke-width:2.5}
+.flow{display:grid;grid-template-columns:1fr;gap:8px;margin:.8em 0}
+@media(min-width:600px){.flow{grid-template-columns:1fr 1fr 1fr}}
+.f{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--card);font-size:.95rem}
+.f b{display:block;color:var(--accent);margin-bottom:3px}
+mark{background:transparent;color:inherit;padding:0 3px;border-bottom:3px solid;border-radius:3px}
+.mk-group{background:var(--think-soft);border-color:var(--think)}
+.mk-agg{background:var(--accent-soft);border-color:var(--accent)}
+.mk-left{background:var(--key-soft);border-color:var(--key)}
+.mk-order{background:color-mix(in srgb,var(--muted) 16%,transparent);border-color:var(--muted)}
+.mk-where{background:var(--trap-soft);border-color:var(--trap)}
+.mk-having{background:var(--trap-soft);border-color:var(--trap);border-bottom-style:double;border-bottom-width:4px}
+.mk-null{background:var(--null);border-color:var(--null-ink)}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.legend span{font-size:12px;font-weight:700;padding:3px 8px;border-radius:8px;border-bottom:3px solid}
+.legend span.mk-having{border-bottom-style:double;border-bottom-width:4px}
+.q-annot{font-size:1.05rem;line-height:1.85;margin:.4em 0}
+
+/* skeleton */
+.skel{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-size:14px;line-height:1.7;background:var(--code-bg);color:var(--code-ink);padding:14px;border-radius:12px;overflow-x:auto}
+.skel b{color:var(--kw)} .skel i{color:var(--fn);font-style:normal}
+
+/* checklist */
+.check{list-style:none;padding:0}
+.check li{padding:8px 0 8px 34px;position:relative;border-bottom:1px dashed var(--line)}
+.check li:last-child{border-bottom:0}
+.check li::before{content:"";position:absolute;left:2px;top:12px;width:20px;height:20px;border:2px solid var(--accent);border-radius:6px}
+.check li.tick::before{background:var(--accent)}
+.check li.tick::after{content:"✓";position:absolute;left:6px;top:8px;color:#fff;font-weight:900;font-size:14px}
+
+/* practice */
+.q{border:1px solid var(--line);border-radius:18px;background:var(--card);margin:22px 0;overflow:hidden}
+.q-head{padding:16px 18px 12px;background:linear-gradient(180deg,var(--accent-soft),transparent)}
+.q-num{font-size:12px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.q-head h3{margin:.25em 0 .35em;font-size:1.3rem}
+.q-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.q-tags span{font-size:12px;padding:3px 9px;border-radius:999px;background:var(--key-soft);color:var(--key);font-weight:700}
+.q-body{padding:6px 18px 16px}
+.q-body .scenario{font-size:1.05rem;border-left:4px solid var(--accent);padding:6px 12px;margin:8px 0 14px;background:var(--paper);border-radius:0 10px 10px 0}
+details{border:1px solid var(--line);border-radius:12px;margin:12px 0;background:var(--card)}
+details>summary{cursor:pointer;padding:12px 14px;font-weight:700;list-style:none;display:flex;align-items:center;gap:10px;user-select:none}
+details>summary::-webkit-details-marker{display:none}
+details>summary::after{content:"+";margin-left:auto;font-size:20px;color:var(--muted);font-weight:400}
+details[open]>summary::after{content:"–"}
+details .d-body{padding:0 14px 14px}
+details.think-d{border-color:var(--think);background:var(--think-soft)}
+details.think-d>summary{color:var(--think)}
+details.ans{border-color:var(--key)}
+details.ans>summary{color:var(--key)}
+details.ans.locked>summary{color:var(--muted)}
+.locked-msg{padding:6px 0 4px}
+.locked-msg button,.btn{font:700 15px/1 inherit;padding:11px 16px;border-radius:12px;border:0;background:var(--accent);color:#fff;cursor:pointer}
+.btn.ghost{background:transparent;border:1px solid var(--line);color:var(--ink)}
+.steps{counter-reset:s;list-style:none;padding:0;margin:.4em 0}
+.steps li{position:relative;padding-left:34px;margin:.55em 0}
+.steps li::before{counter-increment:s;content:counter(s);position:absolute;left:0;top:2px;width:24px;height:24px;border-radius:50%;background:var(--think);color:#fff;font-size:13px;font-weight:800;display:grid;place-items:center}
+.why{margin-top:.8em}
+.predict{display:inline-block;font-size:13px;font-weight:700;padding:4px 10px;border-radius:8px;background:var(--card);border:1px dashed var(--think);color:var(--think);margin-top:6px}
+
+/* fab + sheet */
+.fab{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:60;font:700 14px/1 inherit;padding:13px 16px;border-radius:999px;border:0;background:var(--ink);color:var(--paper);box-shadow:0 8px 24px rgba(0,0,0,.22);cursor:pointer;display:flex;gap:8px;align-items:center}
+.fab.open{background:var(--ok);color:#fff}
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:70;display:none}
+.backdrop.show{display:block}
+.sheet{position:fixed;left:0;right:0;bottom:0;z-index:80;background:var(--card);border-radius:20px 20px 0 0;padding:20px 18px calc(22px + env(safe-area-inset-bottom));transform:translateY(105%);transition:transform .25s ease;max-width:560px;margin:0 auto;box-shadow:0 -10px 40px rgba(0,0,0,.25)}
+.sheet.show{transform:translateY(0)}
+.sheet h3{margin-top:0}
+.sheet input{width:100%;font:17px/1.3 inherit;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--paper);color:var(--ink);margin:10px 0}
+.sheet input:focus{outline:2px solid var(--accent);border-color:var(--accent)}
+.sheet .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.sheet .msg{font-size:14px;min-height:1.4em;margin-top:8px}
+.sheet .msg.err{color:var(--trap)} .sheet .msg.ok{color:var(--ok)}
+
+/* viva */
+.viva dt{font-weight:800;margin-top:.9em}
+.viva dd{margin:.15em 0 0 0;color:var(--ink)}
+
+footer{margin-top:60px;padding-top:20px;border-top:1px solid var(--line);color:var(--muted);font-size:14px}
+
+@media print{
+  body{padding:0;background:#fff;color:#000;font-size:11.5pt}
+  .nav,.fab,.sheet,.backdrop,.copy,.locked-msg{display:none!important}
+  .card,.q,details{break-inside:avoid;box-shadow:none}
+  details{border:1px solid #ccc}
+  details>summary{display:none}
+  details .d-body{display:block;padding:10px}
+  details:not([open]) .d-body{display:block}
+  pre{white-space:pre-wrap;word-break:break-word;background:#f3f3f3;color:#000}
+  pre .kw{color:#0b3d91} pre .fn{color:#7a4b00} pre .str{color:#0a6d1e} pre .num{color:#7a1f00} pre .cm{color:#666}
+  .page-break{break-before:page}
+  h2{break-after:avoid}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="eyebrow">CSE353 · DBMS Lab · Exam companion</span>
+  <h1>Think in SQL</h1>
+  <p class="lede">A calm, five-page method for turning any application question into a correct query. Then five exam-style questions with locked answers.</p>
+  <div class="chips"><span class="chip">≈ 25 min read</span><span class="chip">Oracle SQL</span><span class="chip">Joins · Group By · NULLs</span><span class="chip">Answers need a passkey</span></div>
+  <div class="callout">
+    <span class="lbl">Read this first</span>
+    <p>You do not need to memorise fifty queries. You need <strong>one mental picture</strong> and <strong>one method</strong>. Every question the examiner can ask on Monday is the same six moves, in the same order. The picture is on page 1, the method on page 2, and by page 5 you will be predicting the answer before you type it.</p>
+  </div>
+</header>
+
+<nav class="nav" aria-label="Sections">
+  <a href="#principle">1 · Principle</a>
+  <a href="#query">2 · The query</a>
+  <a href="#method">3 · Method</a>
+  <a href="#joins">4 · Joins</a>
+  <a href="#checklist">5 · Checklist</a>
+  <a href="#practice">Practice</a>
+  <a href="#viva">Viva</a>
+</nav>
+
+<!-- ============================ PAGE 1 ============================ -->
+<p class="page-tag">Page 1 of 5</p>
+<h2 id="principle">1. The first principle of a DBMS: tables that point at each other</h2>
+
+<p>A database is not a pile of data. It is a set of <strong>tables</strong>, and every table has exactly one job: to describe one kind of thing. A STUDENT table describes students. A COURSE table describes courses. <strong>Each row is one thing. Each column is one fact about it.</strong></p>
+
+<p>Two rules make the whole system work, and every join you will ever write comes from them:</p>
+
+<div class="card">
+  <p><strong>Rule 1 — Every row has a Primary Key (PK).</strong> One column whose value is unique and never NULL. It is the row's identity card: <code>student_id</code>, <code>doc_id</code>, <code>course_id</code>.</p>
+  <p><strong>Rule 2 — A Foreign Key (FK) is one table storing another table's Primary Key.</strong> It is how tables "point" at each other. <code>COURSE.student_id</code> stores a value that must exist in <code>STUDENT.student_id</code>.</p>
+
+  <svg class="fig" viewBox="0 0 360 150" role="img" aria-label="COURSE.student_id is a foreign key pointing to STUDENT.student_id">
+    <defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+    <rect x="8" y="14" width="150" height="120" rx="10" class="bx"/>
+    <rect x="8" y="14" width="150" height="26" rx="10" class="hd"/>
+    <text x="83" y="31" text-anchor="middle" class="ttl">STUDENT</text>
+    <text x="20" y="62" class="pk">PK student_id</text>
+    <text x="20" y="86">student_name</text>
+    <text x="20" y="110">department</text>
+
+    <rect x="202" y="14" width="150" height="120" rx="10" class="bx"/>
+    <rect x="202" y="14" width="150" height="26" rx="10" class="hd"/>
+    <text x="277" y="31" text-anchor="middle" class="ttl">COURSE</text>
+    <text x="214" y="62" class="pk">PK course_id</text>
+    <text x="214" y="86">course_name</text>
+    <text x="214" y="110" class="fk">FK student_id</text>
+    <text x="214" y="126">fee</text>
+
+    <path d="M206 106 C 180 106, 180 58, 160 58" class="arrow" marker-end="url(#ah)"/>
+    <text x="181" y="134" text-anchor="middle" class="lbl">= ON</text>
+  </svg>
+  <p class="figcap">The arrow from FK to PK <em>is</em> your ON clause: <code>ON course.student_id = student.student_id</code></p>
+</div>
+
+<div class="callout">
+  <span class="lbl">Analogy: the class register and the library register</span>
+  <p>Your class register lists you once, with your roll number. When you borrow a book, the library register does not copy your name, department and phone number; it writes just your <strong>roll number</strong>. To find out who borrowed the book, the librarian follows the roll number back to the class register. The roll number in the class register is the <strong>primary key</strong>. The roll number copied into the library register is a <strong>foreign key</strong>. The librarian's "following it back" is a <strong>JOIN</strong>.</p>
+  <svg class="fig" viewBox="0 0 360 132" role="img" aria-label="The class register lists Priya once with roll number 07; the library register records only roll number 07; following it back is a join">
+    <defs><marker id="ahR" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+    <rect x="8" y="8" width="160" height="66" rx="10" class="bx"/><rect x="8" y="8" width="160" height="22" rx="10" class="hd"/>
+    <text x="88" y="23" text-anchor="middle" class="ttl">CLASS REGISTER</text>
+    <text x="18" y="44" class="lbl">Roll   Name    Dept</text>
+    <text x="18" y="62">07     Priya   CSE</text>
+    <circle cx="25" cy="58" r="10" class="ring"/>
+    <rect x="192" y="8" width="160" height="66" rx="10" class="bx"/><rect x="192" y="8" width="160" height="22" rx="10" class="hd"/>
+    <text x="272" y="23" text-anchor="middle" class="ttl">LIBRARY REGISTER</text>
+    <text x="202" y="44" class="lbl">Book   Roll   Date</text>
+    <text x="202" y="62">DBMS   07     12-Sep</text>
+    <circle cx="253" cy="58" r="10" class="ring2"/>
+    <path d="M253 70 C 253 108, 25 108, 25 71" class="arrow" marker-end="url(#ahR)"/>
+    <text x="180" y="124" text-anchor="middle" class="lbl">follow the roll number back  =  JOIN … ON</text>
+  </svg>
+</div>
+
+<div class="callout key">
+  <span class="lbl">The one idea behind every join</span>
+  <p><strong>A JOIN is just following an arrow.</strong> If you can find which column in table A equals which column in table B, you can write the join. If there is no arrow between two tables, you go through a third table that has arrows to both. That is all a "3-table join" is.</p>
+</div>
+
+<h3>Why is data split into tables at all?</h3>
+<p>So that a fact is stored <strong>once</strong>. The department name "Cardiology" lives in one row of DEPARTMENT, not repeated on every doctor. That is what normalization means in one breath: <em>store each fact once, in the table it belongs to, and use keys to connect.</em> Joins put the facts back together <em>at query time</em>. Store once, join when needed.</p>
+
+<!-- ============================ PAGE 2 ============================ -->
+<p class="page-tag">Page 2 of 5</p>
+<h2 id="query">2. The first principle of a query: you translate, you don't invent</h2>
+
+<p>A nervous student thinks a query has to be <em>created</em>. It doesn't. A <code>SELECT</code> is a sentence in a fixed grammar, and every application question is really asking the same thing:</p>
+
+<div class="callout">
+  <span class="lbl">Every question, decoded</span>
+  <p><strong>"Show me WHAT, FROM which tables, for WHICH rows, grouped HOW, sorted HOW."</strong><br>Your job is translation, not creativity. The English is already the query; you just move the words into the right slots.</p>
+</div>
+
+<h3>The kitchen pipeline: the order Oracle <em>thinks</em></h3>
+<p>You <em>type</em> SELECT first, but Oracle <em>runs</em> FROM first. This one fact explains almost every error you will ever see. Think of cooking:</p>
+
+<ol class="pipe">
+  <li><span class="n">1</span><div class="t"><b><code>FROM</code> + <code>JOIN … ON</code> — take ingredients out of the fridge</b><span>Which tables? Connect them by following the key arrows.</span></div></li>
+  <li><span class="n">2</span><div class="t"><b><code>WHERE</code> — wash and throw away bad rows</b><span>Filters <em>individual rows</em>. It runs before any grouping, so it cannot see totals.</span></div></li>
+  <li><span class="n">3</span><div class="t"><b><code>GROUP BY</code> — arrange into plates</b><span>One plate per department, per doctor, per city. Every "each / per / -wise" in the question lands here.</span></div></li>
+  <li><span class="n">4</span><div class="t"><b><code>HAVING</code> — throw away plates that fail a test</b><span>Filters <em>groups</em>. The only place a condition on COUNT / SUM / AVG can live.</span></div></li>
+  <li><span class="n">5</span><div class="t"><b><code>SELECT</code> — decide what goes on the serving tray</b><span>Columns, aggregates, and clear aliases. Written first, decided last.</span></div></li>
+  <li><span class="n">6</span><div class="t"><b><code>ORDER BY</code> — serve in order</b><span>Runs last, so it can use the aliases you gave in SELECT.</span></div></li>
+</ol>
+
+<p><strong>Watch the rows shrink.</strong> Here is the pipeline running on the hospital data from the practice arena, for the question <em>"doctors with at least two completed appointments"</em>:</p>
+<svg class="fig" viewBox="0 0 360 246" role="img" aria-label="Rows shrink through the pipeline: 10 rows after FROM and JOIN, 9 after WHERE, 5 plates after GROUP BY, 3 after HAVING, then SELECT and ORDER BY">
+  <g class="band"><rect x="16" y="6" width="272" height="30" rx="8"/><text x="152" y="25" text-anchor="middle">FROM appointment JOIN doctor</text></g>
+  <text x="354" y="25" text-anchor="end" class="cnt">10 rows</text>
+  <g class="band"><rect x="36" y="46" width="232" height="30" rx="8"/><text x="152" y="65" text-anchor="middle">WHERE status = 'Completed'</text></g>
+  <text x="354" y="65" text-anchor="end" class="cnt">9 rows</text>
+  <g class="band plate"><rect x="60" y="86" width="184" height="30" rx="8"/><text x="152" y="105" text-anchor="middle">GROUP BY doctor</text></g>
+  <text x="354" y="105" text-anchor="end" class="cnt">5 plates</text>
+  <g class="band plate"><rect x="76" y="126" width="152" height="30" rx="8"/><text x="152" y="145" text-anchor="middle">HAVING COUNT(*) &gt;= 2</text></g>
+  <text x="354" y="145" text-anchor="end" class="cnt">3 plates</text>
+  <g class="band out"><rect x="76" y="166" width="152" height="30" rx="8"/><text x="152" y="185" text-anchor="middle">SELECT name, COUNT(*)</text></g>
+  <text x="354" y="185" text-anchor="end" class="cnt">3 rows</text>
+  <g class="band out"><rect x="76" y="206" width="152" height="30" rx="8"/><text x="152" y="225" text-anchor="middle">ORDER BY 2 DESC</text></g>
+  <text x="354" y="225" text-anchor="end" class="cnt">sorted</text>
+</svg>
+<p class="figcap">Ten appointment rows go in; three summary rows come out. Saying these numbers before you press Enter is Move 6 on page 3.</p>
+
+<h3>GROUP BY, drawn</h3>
+<p>GROUP BY does not delete rows. It <em>sorts them onto plates</em> and then hands you one row per plate. Six doctor rows become four department plates:</p>
+<svg class="fig" viewBox="0 0 368 226" role="img" aria-label="Six doctor rows are sorted onto four department plates; the output has one row per plate with a count">
+  <defs><marker id="ahP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+  <text x="58" y="16" text-anchor="middle" class="lbl">6 doctor rows</text>
+  <text x="184" y="16" text-anchor="middle" class="lbl">plates: GROUP BY dept</text>
+  <text x="310" y="16" text-anchor="middle" class="lbl">one row per plate</text>
+  <rect x="6" y="30" width="104" height="20" rx="6" class="chip c1"/><text x="12" y="44">Meera · Cardio</text>
+  <rect x="6" y="56" width="104" height="20" rx="6" class="chip c1"/><text x="12" y="70">Arjun · Cardio</text>
+  <rect x="6" y="82" width="104" height="20" rx="6" class="chip c2"/><text x="12" y="96">Fatima · Neuro</text>
+  <rect x="6" y="108" width="104" height="20" rx="6" class="chip c3"/><text x="12" y="122">Rohan · Ortho</text>
+  <rect x="6" y="134" width="104" height="20" rx="6" class="chip c3"/><text x="12" y="148">Kavya · Ortho</text>
+  <rect x="6" y="160" width="104" height="20" rx="6" class="chip c4"/><text x="12" y="174">Sameer · Pedia</text>
+  <path d="M110 40 L132 50" class="link"/><path d="M110 66 L132 50" class="link"/>
+  <path d="M110 92 L132 100" class="link"/>
+  <path d="M110 118 L132 150" class="link"/><path d="M110 144 L132 150" class="link"/>
+  <path d="M110 170 L132 200" class="link"/>
+  <rect x="132" y="30" width="104" height="40" rx="8" class="plate-r"/><text x="140" y="46" class="pk">Cardiology</text><text x="140" y="62">Meera, Arjun</text>
+  <rect x="132" y="80" width="104" height="40" rx="8" class="plate-r"/><text x="140" y="96" class="pk">Neurology</text><text x="140" y="112">Fatima</text>
+  <rect x="132" y="130" width="104" height="40" rx="8" class="plate-r"/><text x="140" y="146" class="pk">Orthopedics</text><text x="140" y="162">Rohan, Kavya</text>
+  <rect x="132" y="180" width="104" height="40" rx="8" class="plate-r"/><text x="140" y="196" class="pk">Pediatrics</text><text x="140" y="212">Sameer</text>
+  <path d="M238 50 L254 50" class="arrow" marker-end="url(#ahP)"/><path d="M238 100 L254 100" class="arrow" marker-end="url(#ahP)"/>
+  <path d="M238 150 L254 150" class="arrow" marker-end="url(#ahP)"/><path d="M238 200 L254 200" class="arrow" marker-end="url(#ahP)"/>
+  <rect x="258" y="38" width="106" height="24" rx="6" class="res"/><text x="264" y="54">Cardiology</text><text x="358" y="54" text-anchor="end" class="fk">2</text>
+  <rect x="258" y="88" width="106" height="24" rx="6" class="res"/><text x="264" y="104">Neurology</text><text x="358" y="104" text-anchor="end" class="fk">1</text>
+  <rect x="258" y="138" width="106" height="24" rx="6" class="res"/><text x="264" y="154">Orthopedics</text><text x="358" y="154" text-anchor="end" class="fk">2</text>
+  <rect x="258" y="188" width="106" height="24" rx="6" class="res"/><text x="264" y="204">Pediatrics</text><text x="358" y="204" text-anchor="end" class="fk">1</text>
+</svg>
+<p class="figcap"><code>COUNT(*)</code> counts what is on each plate, and the output has exactly one row per plate. That is why every plain column you SELECT must be a plate label, which means it must be in GROUP BY.</p>
+
+<h3>WHERE versus HAVING: the bouncer and the judge</h3>
+<div class="flow">
+  <div class="f"><b>WHERE is the bouncer</b>Stands at the door and checks <em>one row at a time</em>: "Status Completed? Come in." He has never seen a total in his life, so he cannot check "at least two".</div>
+  <div class="f"><b>GROUP BY is the seating</b>Everyone who got in sits at their doctor's table. One table per doctor.</div>
+  <div class="f"><b>HAVING is the judge</b>Walks table to table <em>after</em> everyone is seated: "Fewer than two at this table? Cleared away." Only the judge can see a table's total.</div>
+</div>
+
+<div class="callout key">
+  <span class="lbl">Two rules that fall out of this order</span>
+  <p><strong>WHERE runs before GROUP BY</strong>, so it can't see totals. A condition on a total goes in <code>HAVING</code>.</p>
+  <p><strong>SELECT runs after GROUP BY</strong>, so any plain column you SELECT must also be in <code>GROUP BY</code> (otherwise Oracle says <em>ORA-00937 not a single-group group function</em>).</p>
+</div>
+
+<p><strong>Confidence trick:</strong> when you feel stuck, stop trying to write SELECT. Write <code>FROM</code> first. Once the tables and arrows are on the page, the SELECT writes itself at the end.</p>
+
+<!-- ============================ PAGE 3 ============================ -->
+<p class="page-tag">Page 3 of 5</p>
+<h2 id="method">3. The six-move method (on paper, before you touch the keyboard)</h2>
+
+<h3>Move 1 — Underline the nouns and the signal words</h3>
+<p>Nouns become tables and columns. Signal words tell you which clause to use. Read every question with a highlighter. This is Question 2 from the practice arena, marked the way you should mark it on paper:</p>
+<div class="card">
+  <p class="q-annot">"<mark class="mk-group">For every department</mark>, show the department name and the <mark class="mk-agg">number of doctors</mark> working in it. A department that currently has no doctors <mark class="mk-left">must still appear</mark> in the list, showing 0. Show the departments with the <mark class="mk-order">most doctors first</mark>."</p>
+  <div class="legend">
+    <span class="mk-group">each / every → GROUP BY</span>
+    <span class="mk-agg">number of / total → COUNT / SUM</span>
+    <span class="mk-left">even if none → LEFT JOIN</span>
+    <span class="mk-order">first / arrange → ORDER BY</span>
+    <span class="mk-where">only rows where → WHERE</span>
+    <span class="mk-having">only groups with → HAVING</span>
+    <span class="mk-null">treat NULL as → NVL</span>
+  </div>
+  <p style="margin:.8em 0 0">Four highlights, four clauses, and the query is already half-written in your head: <code>FROM department LEFT JOIN doctor … GROUP BY dept_name … ORDER BY count DESC</code>. The nouns give you the tables; the highlights give you the clauses.</p>
+</div>
+<p>The full dictionary of signal words:</p>
+
+<div class="tbl-wrap">
+<table class="radar">
+<thead><tr><th>If the question says…</th><th>It means</th><th>Clause</th></tr></thead>
+<tbody>
+<tr><td>"along with", "and their", "with details of", "corresponding"</td><td>combine two tables</td><td><code>JOIN … ON</code></td></tr>
+<tr><td>"each", "per", "-wise", "for every"</td><td>one row per group</td><td><code>GROUP BY</code></td></tr>
+<tr><td>"number of", "total", "average", "highest", "lowest"</td><td>an aggregate</td><td><code>COUNT SUM AVG MAX MIN</code></td></tr>
+<tr><td>"only those who…", "earning more than…" (about one row)</td><td>row filter</td><td><code>WHERE</code></td></tr>
+<tr><td>"only departments with more than 2…" (about a total)</td><td>group filter</td><td><code>HAVING</code></td></tr>
+<tr><td>"even if they have none", "including those without", "all departments"</td><td>keep unmatched rows</td><td><code>LEFT JOIN</code></td></tr>
+<tr><td>"who never…", "with no…", "without any…"</td><td>unmatched rows only</td><td><code>LEFT JOIN … WHERE x IS NULL</code></td></tr>
+<tr><td>"pairs", "in the same department as", "compare within one table"</td><td>table with itself</td><td><code>SELF JOIN</code> (two aliases)</td></tr>
+<tr><td>"arrange", "sort", "in order of", "top / highest first"</td><td>sorting</td><td><code>ORDER BY … DESC</code></td></tr>
+<tr><td>"treat NULL as 0", "replace missing with"</td><td>null handling</td><td><code>NVL(col, 0)</code></td></tr>
+<tr><td>"classify", "label as", "category"</td><td>conditional column</td><td><code>CASE WHEN … END</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>Move 2 — Draw boxes and arrows</h3>
+<p>A five-second sketch: one box per table, one arrow per FK→PK link. Each arrow becomes an <code>ON</code>. Start from the table the question is <em>about</em> (the subject). "For each doctor…" means DOCTOR is the subject; "For every department…" means DEPARTMENT is.</p>
+
+<h3>Move 3 — Pick the join type with one question</h3>
+<div class="callout think">
+  <span class="lbl">Ask yourself</span>
+  <p><strong>"Must a row appear even if it has no match in the other table?"</strong><br>No → <code>INNER JOIN</code> (just write <code>JOIN</code>).<br>Yes → <code>LEFT JOIN</code>, with the table that must keep all its rows on the <em>left</em>.</p>
+</div>
+
+<h3>Move 4 — Fill the skeleton in thinking order</h3>
+<p>Think FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY. Then write it in SQL order. The skeleton never changes:</p>
+<div class="skel">
+<b>SELECT</b>   &lt;columns / aggregates&gt;  <b>AS</b> &lt;alias&gt;<br>
+<b>FROM</b>     &lt;subject table&gt; <i>s</i><br>
+<b>JOIN</b>     &lt;other table&gt; <i>o</i>  <b>ON</b> <i>s</i>.key = <i>o</i>.key<br>
+<b>WHERE</b>    &lt;row condition&gt;<br>
+<b>GROUP BY</b> &lt;every plain column in SELECT&gt;<br>
+<b>HAVING</b>   &lt;condition on an aggregate&gt;<br>
+<b>ORDER BY</b> &lt;column or alias&gt; <b>DESC</b>;
+</div>
+<p class="muted" style="font-size:14px">Leave out the lines the question doesn't need. A two-table lookup uses four lines; a full report uses all seven.</p>
+
+<h3>Move 5 — Alias everything</h3>
+<p>Short table aliases (<code>d</code>, <code>dp</code>, <code>a</code>) and readable column aliases (<code>AS total_fee</code>). The marking rubric literally awards marks for <em>"clear aliases, easy to read"</em>, and prefixing every column with its alias kills the <em>ORA-00918 column ambiguously defined</em> error before it happens.</p>
+
+<h3>Move 6 — Predict the row count, then run</h3>
+<p>Before you press Enter, say the expected number of rows out loud. "Five departments, LEFT JOIN from DEPARTMENT, so at least five rows." If the output surprises you, that is <em>information</em>, not failure: it usually means the join type or the COUNT is wrong (see next page).</p>
+
+<!-- ============================ PAGE 4 ============================ -->
+<p class="page-tag">Page 4 of 5</p>
+<h2 id="joins">4. Joins, decoded with pictures</h2>
+
+<div class="callout">
+  <span class="lbl">Analogy: the school dance</span>
+  <p>Departments line up on the left, doctors on the right, and a pair forms whenever the <code>dept_id</code> matches. <strong>INNER JOIN</strong> keeps only the pairs. <strong>LEFT JOIN</strong> keeps every department, even one standing alone; its partner's chair stays empty, and an empty chair is exactly what <strong>NULL</strong> looks like in the output. <strong>RIGHT JOIN</strong> keeps every doctor instead. <strong>FULL OUTER JOIN</strong> keeps everyone, with empty chairs on both sides.</p>
+  <svg class="fig" viewBox="0 0 360 104" role="img" aria-label="Four join types as overlapping circles: INNER shades only the overlap, LEFT shades the whole left circle, RIGHT the whole right circle, FULL both circles">
+    <defs><clipPath id="vclip"><circle cx="33" cy="44" r="24"/></clipPath></defs>
+    <g><circle cx="33" cy="44" r="24" class="vc"/><circle cx="57" cy="44" r="24" class="vc"/><circle cx="57" cy="44" r="24" class="vf" clip-path="url(#vclip)"/><text x="14" y="48" class="lbl">D</text><text x="70" y="48" class="lbl">Dr</text><text x="45" y="92" text-anchor="middle" class="vt">INNER</text></g>
+    <g transform="translate(90 0)"><circle cx="33" cy="44" r="24" class="vf"/><circle cx="33" cy="44" r="24" class="vc"/><circle cx="57" cy="44" r="24" class="vc"/><text x="45" y="92" text-anchor="middle" class="vt">LEFT</text></g>
+    <g transform="translate(180 0)"><circle cx="57" cy="44" r="24" class="vf"/><circle cx="33" cy="44" r="24" class="vc"/><circle cx="57" cy="44" r="24" class="vc"/><text x="45" y="92" text-anchor="middle" class="vt">RIGHT</text></g>
+    <g transform="translate(270 0)"><circle cx="33" cy="44" r="24" class="vf"/><circle cx="57" cy="44" r="24" class="vf"/><circle cx="33" cy="44" r="24" class="vc"/><circle cx="57" cy="44" r="24" class="vc"/><text x="45" y="92" text-anchor="middle" class="vt">FULL</text></g>
+  </svg>
+  <p class="figcap">D = departments, Dr = doctors. The shaded area is what each join returns; the overlap is the matched pairs.</p>
+</div>
+
+<p>Now the same idea with real rows. Take two tiny tables. Dermatology has no doctor yet, and Dr. Sameer has not been assigned a department (his <code>dept_id</code> is NULL). Watch what each join does to the rows that have no partner.</p>
+
+<div class="mini">
+  <div><h4>DEPARTMENT</h4><div class="tbl-wrap"><table><thead><tr><th>dept_id</th><th>dept_name</th></tr></thead><tbody>
+  <tr><td>10</td><td>Cardiology</td></tr><tr><td>20</td><td>Neurology</td></tr><tr><td>50</td><td>Dermatology</td></tr></tbody></table></div></div>
+  <div><h4>DOCTOR</h4><div class="tbl-wrap"><table><thead><tr><th>doc_name</th><th>dept_id</th></tr></thead><tbody>
+  <tr><td>Dr. Meera</td><td>10</td></tr><tr><td>Dr. Arjun</td><td>10</td></tr><tr><td>Dr. Fatima</td><td>20</td></tr><tr><td>Dr. Sameer</td><td class="null">NULL</td></tr></tbody></table></div></div>
+</div>
+
+<p style="margin-top:1em">All four queries share the same core: <code>FROM department dp ___ JOIN doctor d ON dp.dept_id = d.dept_id</code>. Only the blank changes.</p>
+
+<div class="mini">
+  <div><h4>INNER JOIN — matched pairs only</h4>
+  <div class="tbl-wrap"><table><thead><tr><th>dept_name</th><th>doc_name</th></tr></thead><tbody>
+  <tr><td>Cardiology</td><td>Dr. Meera</td></tr><tr><td>Cardiology</td><td>Dr. Arjun</td></tr><tr><td>Neurology</td><td>Dr. Fatima</td></tr></tbody></table></div>
+  <p class="count">3 rows. Dermatology and Dr. Sameer vanish.</p></div>
+
+  <div><h4>LEFT JOIN — keep every department</h4>
+  <div class="tbl-wrap"><table><thead><tr><th>dept_name</th><th>doc_name</th></tr></thead><tbody>
+  <tr><td>Cardiology</td><td>Dr. Meera</td></tr><tr><td>Cardiology</td><td>Dr. Arjun</td></tr><tr><td>Neurology</td><td>Dr. Fatima</td></tr><tr><td>Dermatology</td><td class="null">NULL</td></tr></tbody></table></div>
+  <p class="count">4 rows. Dermatology stays, padded with NULL.</p></div>
+
+  <div><h4>RIGHT JOIN — keep every doctor</h4>
+  <div class="tbl-wrap"><table><thead><tr><th>dept_name</th><th>doc_name</th></tr></thead><tbody>
+  <tr><td>Cardiology</td><td>Dr. Meera</td></tr><tr><td>Cardiology</td><td>Dr. Arjun</td></tr><tr><td>Neurology</td><td>Dr. Fatima</td></tr><tr><td class="null">NULL</td><td>Dr. Sameer</td></tr></tbody></table></div>
+  <p class="count">4 rows. Same as a LEFT JOIN with the tables swapped.</p></div>
+
+  <div><h4>FULL OUTER JOIN — keep everything</h4>
+  <div class="tbl-wrap"><table><thead><tr><th>dept_name</th><th>doc_name</th></tr></thead><tbody>
+  <tr><td>Cardiology</td><td>Dr. Meera</td></tr><tr><td>Cardiology</td><td>Dr. Arjun</td></tr><tr><td>Neurology</td><td>Dr. Fatima</td></tr><tr><td>Dermatology</td><td class="null">NULL</td></tr><tr><td class="null">NULL</td><td>Dr. Sameer</td></tr></tbody></table></div>
+  <p class="count">5 rows. Unmatched from both sides.</p></div>
+</div>
+
+<div class="callout key">
+  <span class="lbl">Row-count sanity rule</span>
+  <p><code>INNER</code> ≤ <code>LEFT</code> / <code>RIGHT</code> ≤ <code>FULL</code>. A LEFT JOIN never has fewer rows than the left table. If your "all departments" query shows 4 departments when the table has 5, you wrote an INNER JOIN.</p>
+</div>
+
+<h3>The COUNT trap after a LEFT JOIN</h3>
+<p>Look at the Dermatology row above: it exists, but its doctor column is NULL. <code>COUNT(*)</code> counts <em>rows</em>, so Dermatology gets <strong>1</strong>, which is wrong. <code>COUNT(d.doc_id)</code> counts <em>non-NULL values</em>, so Dermatology gets <strong>0</strong>, which is right. In the dance analogy, <code>COUNT(*)</code> counts chairs and <code>COUNT(d.doc_id)</code> counts the people actually sitting in them.</p>
+<div class="callout trap">
+  <span class="lbl">Rule</span>
+  <p>After a LEFT JOIN, always count a column from the <em>right-hand</em> table: <code>COUNT(d.doc_id)</code>, never <code>COUNT(*)</code>.</p>
+</div>
+
+<h3>Self join: a table shaking hands with itself</h3>
+<p>Think of your class photo and a photocopy of it. You compare every face in the photo with every face in the copy, then keep only the pairs where the first roll number is smaller than the second. "Pairs of doctors in the same department" needs DOCTOR twice, under two aliases, joined on the shared column. Cardiology has Meera (101) and Arjun (102), so the raw join produces four combinations:</p>
+<div class="tbl-wrap"><table><thead><tr><th>d1</th><th>d2</th><th>Verdict</th></tr></thead><tbody>
+<tr><td>Meera (101)</td><td>Meera (101)</td><td>✗ paired with herself</td></tr>
+<tr><td>Meera (101)</td><td>Arjun (102)</td><td>✓ keep</td></tr>
+<tr><td>Arjun (102)</td><td>Meera (101)</td><td>✗ same pair, repeated</td></tr>
+<tr><td>Arjun (102)</td><td>Arjun (102)</td><td>✗ paired with himself</td></tr>
+</tbody></table></div>
+<p>One condition removes all three bad rows at once: <code>AND d1.doc_id &lt; d2.doc_id</code>. Using <code>&lt;&gt;</code> removes only the self-pairs and leaves the duplicate.</p>
+
+<h3>NULL in one breath</h3>
+<p>NULL is the empty chair from the dance. You cannot ask "is this chair equal to 5?"; you can only ask "is this chair empty?" NULL means <em>unknown</em>, not zero. <code>fee = NULL</code> is never true; write <code>fee IS NULL</code>. <code>SUM</code>, <code>AVG</code> and <code>COUNT(col)</code> silently skip NULLs, so <code>AVG(fee)</code> over 900 and NULL is 900, while <code>AVG(NVL(fee,0))</code> is 450. When the question says "treat NULL as 0", wrap the column in <code>NVL(fee, 0)</code> <em>inside</em> the aggregate.</p>
+
+<p><strong>NATURAL JOIN</strong> joins on every column that has the same name in both tables, automatically. It works in the lab because the tables were designed for it, but in an exam prefer <code>JOIN … ON</code> unless the question says NATURAL: it shows the examiner you know <em>which</em> arrow you are following.</p>
+
+<!-- ============================ PAGE 5 ============================ -->
+<p class="page-tag">Page 5 of 5</p>
+<h2 id="checklist">5. Before you press Enter</h2>
+
+<ul class="check">
+  <li>Every table has an alias, and every column is prefixed with it (kills <em>ORA-00918 ambiguous</em>).</li>
+  <li>Every <code>JOIN</code> has an <code>ON</code>. A missing ON multiplies rows into a Cartesian product.</li>
+  <li>Aggregate + plain column in SELECT → every plain column is in <code>GROUP BY</code> (<em>ORA-00937 / ORA-00979</em>).</li>
+  <li>Condition on a total → <code>HAVING</code>, not <code>WHERE</code> (<em>ORA-00934 group function not allowed here</em>).</li>
+  <li>"Even if none" → <code>LEFT JOIN</code> and <code>COUNT(right_table.column)</code>.</li>
+  <li>NULL handled: <code>NVL(col,0)</code> or <code>IS NULL</code>, never <code>= NULL</code>.</li>
+  <li>Text in single quotes with the exact case in the data (<code>'CSE'</code> ≠ <code>'cse'</code>). Dates through <code>TO_DATE('01-01-2021','DD-MM-YYYY')</code>.</li>
+  <li>Semicolon at the end. A PL/SQL block ends with <code>/</code> on its own line, after <code>SET SERVEROUTPUT ON</code>.</li>
+</ul>
+
+<h3>Error decoder</h3>
+<div class="tbl-wrap">
+<table class="radar">
+<thead><tr><th>Oracle says</th><th>It almost always means</th></tr></thead>
+<tbody>
+<tr><td><code>ORA-00904</code> invalid identifier</td><td>Column name typo, or wrong alias prefix.</td></tr>
+<tr><td><code>ORA-00918</code> column ambiguously defined</td><td>Two tables have this column; prefix it with an alias.</td></tr>
+<tr><td><code>ORA-00937</code> not a single-group group function</td><td>You mixed an aggregate with a plain column and forgot GROUP BY.</td></tr>
+<tr><td><code>ORA-00979</code> not a GROUP BY expression</td><td>A column in SELECT is missing from GROUP BY.</td></tr>
+<tr><td><code>ORA-00934</code> group function not allowed here</td><td>An aggregate in WHERE. Move it to HAVING.</td></tr>
+<tr><td><code>ORA-00933</code> command not properly ended</td><td>Stray comma, missing keyword, or clauses in the wrong order.</td></tr>
+<tr><td><code>ORA-01722</code> invalid number</td><td>Comparing text to a number, usually missing quotes.</td></tr>
+<tr><td><code>ORA-02291</code> parent key not found</td><td>Inserting an FK value that does not exist in the parent table.</td></tr>
+<tr><td><code>ORA-00001</code> unique constraint violated</td><td>Duplicate primary key on INSERT.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h3>The 20-second viva answer</h3>
+<p>The rubric gives marks for <em>"explains query logic confidently"</em>. Use this template, filling the blanks:</p>
+<div class="callout think">
+  <p>"The question asks for <strong>[what]</strong> per <strong>[group]</strong>. The subject table is <strong>[T1]</strong>. I join <strong>[T2]</strong> on <strong>[key]</strong> because <strong>[that fact]</strong> lives there. I used <strong>[INNER / LEFT]</strong> because rows <strong>[must / need not]</strong> appear without a match. WHERE filters rows, GROUP BY gives one row per <strong>[group]</strong>, HAVING filters on the aggregate, and the aliases make the output readable."</p>
+</div>
+
+<div class="callout">
+  <span class="lbl">Exam-day ritual, 60 seconds</span>
+  <p>Read the question twice. Underline nouns and signal words. Sketch the boxes and arrows. Ask the LEFT-or-INNER question. Say the expected row count. Write FROM first. Then type.</p>
+</div>
+
+<!-- ============================ PRACTICE ============================ -->
+<div class="page-break"></div>
+<h2 id="practice">Practice arena: City Care Hospital</h2>
+<p>Five questions in the style the examiner uses: a business scenario, no hints about which clause to use. For each one, do the six moves on paper <em>before</em> opening "How to think". The answers are locked; your brother has the passkey. Ask for it only after you have written your own attempt.</p>
+
+<div class="card">
+  <h3 style="margin-top:0">The schema (four tables, three arrows)</h3>
+  <svg class="fig" viewBox="0 0 360 292" role="img" aria-label="Hospital schema: DOCTOR points to DEPARTMENT; APPOINTMENT points to DOCTOR and PATIENT">
+    <defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+    <!-- DEPARTMENT top-left -->
+    <rect x="8" y="8" width="152" height="96" rx="10" class="bx"/><rect x="8" y="8" width="152" height="24" rx="10" class="hd"/>
+    <text x="84" y="24" text-anchor="middle" class="ttl">DEPARTMENT</text>
+    <text x="18" y="52" class="pk">PK dept_id</text><text x="18" y="72">dept_name</text><text x="18" y="92">floor_no</text>
+    <!-- DOCTOR top-right -->
+    <rect x="200" y="8" width="152" height="116" rx="10" class="bx"/><rect x="200" y="8" width="152" height="24" rx="10" class="hd"/>
+    <text x="276" y="24" text-anchor="middle" class="ttl">DOCTOR</text>
+    <text x="210" y="52" class="pk">PK doc_id</text><text x="210" y="72">doc_name</text><text x="210" y="92" class="fk">FK dept_id</text><text x="210" y="112">salary, join_date</text>
+    <!-- PATIENT bottom-left -->
+    <rect x="8" y="180" width="152" height="96" rx="10" class="bx"/><rect x="8" y="180" width="152" height="24" rx="10" class="hd"/>
+    <text x="84" y="196" text-anchor="middle" class="ttl">PATIENT</text>
+    <text x="18" y="224" class="pk">PK patient_id</text><text x="18" y="244">patient_name</text><text x="18" y="264">city, age</text>
+    <!-- APPOINTMENT bottom-right -->
+    <rect x="200" y="160" width="152" height="124" rx="10" class="bx"/><rect x="200" y="160" width="152" height="24" rx="10" class="hd"/>
+    <text x="276" y="176" text-anchor="middle" class="ttl">APPOINTMENT</text>
+    <text x="210" y="204" class="pk">PK app_id</text><text x="210" y="224" class="fk">FK patient_id</text><text x="210" y="244" class="fk">FK doc_id</text><text x="210" y="264">app_date, fee, status</text>
+    <!-- arrows -->
+    <path d="M204 88 C 185 88, 180 48, 164 48" class="arrow" marker-end="url(#ah2)"/>
+    <path d="M204 220 C 130 220, 180 224, 164 224" class="arrow" marker-end="url(#ah2)"/>
+    <path d="M276 156 L 276 128" class="arrow" marker-end="url(#ah2)"/>
+  </svg>
+  <p class="figcap">Three arrows, so three possible ON clauses. Any question on this schema uses one, two or all three.</p>
+
+  <details>
+    <summary>Create the tables and data (Oracle, copy-paste into SQL*Plus or Live SQL)</summary>
+    <div class="d-body">
+<pre><code class="sql">CREATE TABLE department (
+  dept_id   NUMBER(4) PRIMARY KEY,
+  dept_name VARCHAR2(30),
+  floor_no  NUMBER(2)
+);
+
+CREATE TABLE doctor (
+  doc_id    NUMBER(4) PRIMARY KEY,
+  doc_name  VARCHAR2(40),
+  dept_id   NUMBER(4) REFERENCES department(dept_id),
+  salary    NUMBER(8),
+  join_date DATE
+);
+
+CREATE TABLE patient (
+  patient_id   NUMBER(4) PRIMARY KEY,
+  patient_name VARCHAR2(40),
+  city         VARCHAR2(30),
+  age          NUMBER(3)
+);
+
+CREATE TABLE appointment (
+  app_id     NUMBER(4) PRIMARY KEY,
+  patient_id NUMBER(4) REFERENCES patient(patient_id),
+  doc_id     NUMBER(4) REFERENCES doctor(doc_id),
+  app_date   DATE,
+  fee        NUMBER(6),
+  status     VARCHAR2(12)
+);
+
+INSERT INTO department VALUES (10, 'Cardiology', 2);
+INSERT INTO department VALUES (20, 'Neurology', 3);
+INSERT INTO department VALUES (30, 'Orthopedics', 1);
+INSERT INTO department VALUES (40, 'Pediatrics', 1);
+INSERT INTO department VALUES (50, 'Dermatology', 4);
+
+INSERT INTO doctor VALUES (101, 'Dr. Meera Nair',  10, 120000, TO_DATE('15-03-2018','DD-MM-YYYY'));
+INSERT INTO doctor VALUES (102, 'Dr. Arjun Rao',   10,  95000, TO_DATE('01-07-2021','DD-MM-YYYY'));
+INSERT INTO doctor VALUES (103, 'Dr. Fatima Khan', 20, 110000, TO_DATE('20-11-2019','DD-MM-YYYY'));
+INSERT INTO doctor VALUES (104, 'Dr. Rohan Das',   30,  78000, TO_DATE('10-01-2022','DD-MM-YYYY'));
+INSERT INTO doctor VALUES (105, 'Dr. Kavya Iyer',  30,  82000, TO_DATE('05-06-2020','DD-MM-YYYY'));
+INSERT INTO doctor VALUES (106, 'Dr. Sameer Shah', 40,  70000, TO_DATE('14-02-2023','DD-MM-YYYY'));
+
+INSERT INTO patient VALUES (1, 'Anita Verma',  'Bengaluru', 34);
+INSERT INTO patient VALUES (2, 'Vikram Singh', 'Mysuru',    45);
+INSERT INTO patient VALUES (3, 'Priya Menon',  'Bengaluru', 28);
+INSERT INTO patient VALUES (4, 'Suresh Kumar', 'Chennai',   61);
+INSERT INTO patient VALUES (5, 'Neha Gupta',   'Hubli',     39);
+INSERT INTO patient VALUES (6, 'Imran Ali',    'Bengaluru', 52);
+
+INSERT INTO appointment VALUES (5001, 1, 101, TO_DATE('02-08-2026','DD-MM-YYYY'),  800, 'Completed');
+INSERT INTO appointment VALUES (5002, 2, 101, TO_DATE('03-08-2026','DD-MM-YYYY'),  800, 'Completed');
+INSERT INTO appointment VALUES (5003, 3, 103, TO_DATE('05-08-2026','DD-MM-YYYY'), 1000, 'Completed');
+INSERT INTO appointment VALUES (5004, 1, 103, TO_DATE('10-08-2026','DD-MM-YYYY'), 1000, 'Completed');
+INSERT INTO appointment VALUES (5005, 4, 104, TO_DATE('12-08-2026','DD-MM-YYYY'),  600, 'Completed');
+INSERT INTO appointment VALUES (5006, 6, 102, TO_DATE('15-08-2026','DD-MM-YYYY'), NULL, 'Cancelled');
+INSERT INTO appointment VALUES (5007, 2, 105, TO_DATE('18-08-2026','DD-MM-YYYY'),  650, 'Completed');
+INSERT INTO appointment VALUES (5008, 1, 101, TO_DATE('20-08-2026','DD-MM-YYYY'),  800, 'Completed');
+INSERT INTO appointment VALUES (5009, 6, 104, TO_DATE('22-08-2026','DD-MM-YYYY'),  600, 'Completed');
+INSERT INTO appointment VALUES (5010, 6, 102, TO_DATE('25-08-2026','DD-MM-YYYY'),  900, 'Completed');
+COMMIT;</code></pre>
+    </div>
+  </details>
+
+  <details>
+    <summary>See the data (so you can trace answers by hand)</summary>
+    <div class="d-body">
+      <h4>DEPARTMENT</h4><div class="tbl-wrap"><table><thead><tr><th>DEPT_ID</th><th>DEPT_NAME</th><th>FLOOR_NO</th></tr></thead><tbody><tr><td>10</td><td>Cardiology</td><td>2</td></tr><tr><td>20</td><td>Neurology</td><td>3</td></tr><tr><td>30</td><td>Orthopedics</td><td>1</td></tr><tr><td>40</td><td>Pediatrics</td><td>1</td></tr><tr><td>50</td><td>Dermatology</td><td>4</td></tr></tbody></table></div>
+      <h4>DOCTOR</h4><div class="tbl-wrap"><table><thead><tr><th>DOC_ID</th><th>DOC_NAME</th><th>DEPT_ID</th><th>SALARY</th><th>JOIN_DATE</th></tr></thead><tbody><tr><td>101</td><td>Dr. Meera Nair</td><td>10</td><td>120000</td><td>15-MAR-18</td></tr><tr><td>102</td><td>Dr. Arjun Rao</td><td>10</td><td>95000</td><td>01-JUL-21</td></tr><tr><td>103</td><td>Dr. Fatima Khan</td><td>20</td><td>110000</td><td>20-NOV-19</td></tr><tr><td>104</td><td>Dr. Rohan Das</td><td>30</td><td>78000</td><td>10-JAN-22</td></tr><tr><td>105</td><td>Dr. Kavya Iyer</td><td>30</td><td>82000</td><td>05-JUN-20</td></tr><tr><td>106</td><td>Dr. Sameer Shah</td><td>40</td><td>70000</td><td>14-FEB-23</td></tr></tbody></table></div>
+      <h4>PATIENT</h4><div class="tbl-wrap"><table><thead><tr><th>PATIENT_ID</th><th>PATIENT_NAME</th><th>CITY</th><th>AGE</th></tr></thead><tbody><tr><td>1</td><td>Anita Verma</td><td>Bengaluru</td><td>34</td></tr><tr><td>2</td><td>Vikram Singh</td><td>Mysuru</td><td>45</td></tr><tr><td>3</td><td>Priya Menon</td><td>Bengaluru</td><td>28</td></tr><tr><td>4</td><td>Suresh Kumar</td><td>Chennai</td><td>61</td></tr><tr><td>5</td><td>Neha Gupta</td><td>Hubli</td><td>39</td></tr><tr><td>6</td><td>Imran Ali</td><td>Bengaluru</td><td>52</td></tr></tbody></table></div>
+      <h4>APPOINTMENT</h4><div class="tbl-wrap"><table><thead><tr><th>APP_ID</th><th>PATIENT_ID</th><th>DOC_ID</th><th>APP_DATE</th><th>FEE</th><th>STATUS</th></tr></thead><tbody><tr><td>5001</td><td>1</td><td>101</td><td>02-AUG-26</td><td>800</td><td>Completed</td></tr><tr><td>5002</td><td>2</td><td>101</td><td>03-AUG-26</td><td>800</td><td>Completed</td></tr><tr><td>5003</td><td>3</td><td>103</td><td>05-AUG-26</td><td>1000</td><td>Completed</td></tr><tr><td>5004</td><td>1</td><td>103</td><td>10-AUG-26</td><td>1000</td><td>Completed</td></tr><tr><td>5005</td><td>4</td><td>104</td><td>12-AUG-26</td><td>600</td><td>Completed</td></tr><tr><td>5006</td><td>6</td><td>102</td><td>15-AUG-26</td><td class="null">(null)</td><td>Cancelled</td></tr><tr><td>5007</td><td>2</td><td>105</td><td>18-AUG-26</td><td>650</td><td>Completed</td></tr><tr><td>5008</td><td>1</td><td>101</td><td>20-AUG-26</td><td>800</td><td>Completed</td></tr><tr><td>5009</td><td>6</td><td>104</td><td>22-AUG-26</td><td>600</td><td>Completed</td></tr><tr><td>5010</td><td>6</td><td>102</td><td>25-AUG-26</td><td>900</td><td>Completed</td></tr></tbody></table></div>
+      <p class="muted" style="font-size:14px">Notice the deliberate gaps: Dermatology has no doctor, Dr. Sameer has no appointments, Neha has never visited, and appointment 5006 was cancelled with a NULL fee. Exam data always has gaps like these; they are where the marks hide.</p>
+    </div>
+  </details>
+</div>
+
+<!-- Q1 -->
+<section class="q" id="q1">
+  <div class="q-head">
+    <div class="q-num">Question 1</div>
+    <h3>Senior high-earners</h3>
+    <div class="q-tags"><span>INNER JOIN</span><span>WHERE</span><span>TO_DATE</span><span>ORDER BY</span></div>
+  </div>
+  <div class="q-body">
+    <p class="scenario">The hospital administrator wants to reward experienced senior staff. Display the doctor's name, department name and salary for every doctor who earns more than ₹80,000 <em>and</em> joined before 1 January 2021. Arrange the list from the highest salary to the lowest.</p>
+
+    <details class="think-d">
+      <summary>How to think</summary>
+      <div class="d-body">
+        <ol class="steps">
+          <li><strong>Nouns:</strong> doctor (name, salary, join date) and department (name). Two tables. The arrow is <code>DOCTOR.dept_id → DEPARTMENT.dept_id</code>.</li>
+          <li><strong>Signal words:</strong> "who earns more than", "joined before" are about a single doctor's row → <code>WHERE</code>. "Arrange" → <code>ORDER BY</code>. No "each / per" → no GROUP BY, no aggregates.</li>
+          <li><strong>Join type:</strong> must a doctor appear even if the department is missing? No → <code>INNER JOIN</code>. Subject is DOCTOR.</li>
+          <li><strong>Skeleton:</strong> SELECT three columns / FROM doctor / JOIN department ON dept_id / WHERE two conditions joined by AND / ORDER BY salary DESC.</li>
+          <li><strong>Predict:</strong> six doctors; salary above 80,000 leaves four; joined before 2021 removes Dr. Arjun (2021). <span class="predict">Expect 3 rows</span></li>
+        </ol>
+        <div class="callout trap"><span class="lbl">Trap</span><p>Comparing a DATE column to a plain string depends on the session's date format and can throw <em>ORA-01861</em>. Always convert the string: <code>TO_DATE('01-01-2021','DD-MM-YYYY')</code>.</p></div>
+      </div>
+    </details>
+
+    <details class="ans locked" data-q="q1">
+      <summary><span class="lock-ico">🔒</span> Answer (locked)</summary>
+      <div class="d-body">
+        <div class="locked-msg"><p class="muted">Write your own query first. Then ask your brother for the passkey.</p><button class="open-sheet">Enter passkey</button></div>
+        <div class="ans-content"></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Q2 -->
+<section class="q" id="q2">
+  <div class="q-head">
+    <div class="q-num">Question 2</div>
+    <h3>Recruitment planning</h3>
+    <div class="q-tags"><span>LEFT JOIN</span><span>COUNT</span><span>GROUP BY</span></div>
+  </div>
+  <div class="q-body">
+    <p class="scenario">The HR team is planning recruitment. For every department, show the department name and the number of doctors working in it. A department that currently has no doctors must still appear in the list, showing 0. Show the departments with the most doctors first.</p>
+
+    <details class="think-d">
+      <summary>How to think</summary>
+      <div class="d-body">
+        <ol class="steps">
+          <li><strong>Nouns:</strong> department (name) and doctor (to count). Same arrow as Q1.</li>
+          <li><strong>Signal words:</strong> "for every department" → subject is DEPARTMENT and <code>GROUP BY dept_name</code>. "number of doctors" → <code>COUNT</code>. "must still appear, showing 0" → keep unmatched departments → <code>LEFT JOIN</code> with DEPARTMENT on the left.</li>
+          <li><strong>Join type:</strong> the question answered it for you: rows must appear without a match, so LEFT.</li>
+          <li><strong>Skeleton:</strong> SELECT dept_name, COUNT(...) / FROM department / LEFT JOIN doctor ON dept_id / GROUP BY dept_name / ORDER BY the count DESC.</li>
+          <li><strong>Predict:</strong> five departments in the table → <span class="predict">Expect exactly 5 rows</span>, one of them Dermatology with 0.</li>
+        </ol>
+        <div class="callout trap"><span class="lbl">Trap</span><p>This is the COUNT trap from page 4. <code>COUNT(*)</code> will give Dermatology 1. Count a column from the doctor side: <code>COUNT(d.doc_id)</code>.</p></div>
+      </div>
+    </details>
+
+    <details class="ans locked" data-q="q2">
+      <summary><span class="lock-ico">🔒</span> Answer (locked)</summary>
+      <div class="d-body">
+        <div class="locked-msg"><p class="muted">Write your own query first. Then ask your brother for the passkey.</p><button class="open-sheet">Enter passkey</button></div>
+        <div class="ans-content"></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Q3 -->
+<section class="q" id="q3">
+  <div class="q-head">
+    <div class="q-num">Question 3</div>
+    <h3>Doctor-wise revenue report</h3>
+    <div class="q-tags"><span>3-table JOIN</span><span>GROUP BY</span><span>HAVING</span><span>NVL</span><span>SUM · AVG · COUNT</span></div>
+  </div>
+  <div class="q-body">
+    <p class="scenario">The finance team needs a doctor-wise revenue report. For each doctor, show the doctor's name, department name, number of appointments, total fee collected and average fee. A cancelled appointment has a NULL fee: treat it as 0. Include only doctors who have handled at least 2 appointments. Arrange by total fee, highest first.</p>
+
+    <details class="think-d">
+      <summary>How to think</summary>
+      <div class="d-body">
+        <p class="q-annot" style="font-size:1rem">"<mark class="mk-group">For each doctor</mark>, show the doctor's name, department name, <mark class="mk-agg">number of appointments</mark>, <mark class="mk-agg">total fee</mark> collected and <mark class="mk-agg">average fee</mark>. A cancelled appointment has a NULL fee: <mark class="mk-null">treat it as 0</mark>. Include only doctors who have handled <mark class="mk-having">at least 2 appointments</mark>. <mark class="mk-order">Arrange by total fee, highest first</mark>."</p>
+        <svg class="fig" viewBox="0 0 360 88" role="img" aria-label="APPOINTMENT points to DOCTOR, which points to DEPARTMENT; DOCTOR is the hub">
+          <defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" class="ah"/></marker></defs>
+          <text x="180" y="10" text-anchor="middle" class="lbl">the hub: start your FROM here</text>
+          <rect x="6" y="16" width="104" height="36" rx="9" class="bx"/><text x="58" y="38" text-anchor="middle" class="ttl">DEPARTMENT</text>
+          <rect x="128" y="16" width="104" height="36" rx="9" class="bx hub"/><text x="180" y="38" text-anchor="middle" class="ttl">DOCTOR</text>
+          <rect x="250" y="16" width="104" height="36" rx="9" class="bx"/><text x="302" y="38" text-anchor="middle" class="ttl">APPOINTMENT</text>
+          <path d="M126 34 L 112 34" class="arrow" marker-end="url(#ah3)"/>
+          <path d="M248 34 L 234 34" class="arrow" marker-end="url(#ah3)"/>
+          <text x="100" y="68" text-anchor="middle" class="lbl">ON d.dept_id = dp.dept_id</text>
+          <text x="262" y="82" text-anchor="middle" class="lbl">ON a.doc_id = d.doc_id</text>
+        </svg>
+        <p class="figcap">Two arrows, two ON clauses. DOCTOR sits in the middle, so the FROM starts there and each JOIN follows one arrow.</p>
+        <ol class="steps">
+          <li><strong>Nouns:</strong> doctor, department, appointment → three tables, two arrows: <code>DOCTOR.dept_id → DEPARTMENT</code> and <code>APPOINTMENT.doc_id → DOCTOR</code>. DOCTOR is the hub in the middle.</li>
+          <li><strong>Signal words:</strong> "for each doctor" → <code>GROUP BY</code> doctor name (and department name, because it is in SELECT). "number of / total / average" → <code>COUNT / SUM / AVG</code>. "treat NULL as 0" → <code>NVL(fee,0)</code> inside SUM and AVG. "at least 2 appointments" is a condition on a COUNT → <code>HAVING</code>. "Arrange by total fee" → <code>ORDER BY total_fee DESC</code> using the alias.</li>
+          <li><strong>Join type:</strong> doctors with zero appointments are excluded anyway by "at least 2", so a plain <code>INNER JOIN</code> is correct.</li>
+          <li><strong>Skeleton:</strong> all seven lines of the skeleton. This is the "full report" shape.</li>
+          <li><strong>Predict:</strong> Meera 3, Arjun 2, Fatima 2, Rohan 2, Kavya 1, Sameer 0 → <span class="predict">Expect 4 rows</span>, Meera on top.</li>
+        </ol>
+        <div class="callout trap"><span class="lbl">Trap</span><p><code>AVG(fee)</code> skips the NULL and gives Dr. Arjun 900. <code>AVG(NVL(fee,0))</code> gives 450. The question said "treat as 0", so 450 is the correct answer, and the examiner will ask you which one you chose and why.</p></div>
+      </div>
+    </details>
+
+    <details class="ans locked" data-q="q3">
+      <summary><span class="lock-ico">🔒</span> Answer (locked)</summary>
+      <div class="d-body">
+        <div class="locked-msg"><p class="muted">Write your own query first. Then ask your brother for the passkey.</p><button class="open-sheet">Enter passkey</button></div>
+        <div class="ans-content"></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Q4 -->
+<section class="q" id="q4">
+  <div class="q-head">
+    <div class="q-num">Question 4</div>
+    <h3>Patient outreach</h3>
+    <div class="q-tags"><span>LEFT JOIN</span><span>COUNT</span><span>IS NULL</span><span>NOT IN</span></div>
+  </div>
+  <div class="q-body">
+    <p class="scenario">The outreach team wants to contact patients. <strong>(a)</strong> Show every patient's name, city and number of visits, including patients who have never visited. <strong>(b)</strong> Now show only the name and city of patients who have never taken an appointment.</p>
+
+    <details class="think-d">
+      <summary>How to think</summary>
+      <div class="d-body">
+        <ol class="steps">
+          <li><strong>Nouns:</strong> patient and appointment. Arrow: <code>APPOINTMENT.patient_id → PATIENT.patient_id</code>. Subject is PATIENT.</li>
+          <li><strong>(a) Signal words:</strong> "every patient… including never visited" → <code>LEFT JOIN</code> from PATIENT. "number of visits" → <code>COUNT(a.app_id)</code>, grouped by patient.</li>
+          <li><strong>(b) Signal word:</strong> "never". After the LEFT JOIN, the patients with no match are exactly the rows where the appointment side is NULL. So keep part (a)'s join and add <code>WHERE a.app_id IS NULL</code>. No GROUP BY needed.</li>
+          <li><strong>Alternative for (b):</strong> a subquery reads like English: patients whose id is <code>NOT IN</code> the list of patient ids in APPOINTMENT. Know both; the examiner may ask for "another way".</li>
+          <li><strong>Predict:</strong> six patients → (a) <span class="predict">6 rows</span>; only Neha never visited → (b) <span class="predict">1 row</span>.</li>
+        </ol>
+        <div class="callout trap"><span class="lbl">Trap</span><p>Put <code>a.app_id IS NULL</code> in <code>WHERE</code>, not in <code>ON</code>. ON decides <em>how rows match</em>; WHERE filters <em>the result</em>. In the ON clause it would change the matching and return every patient.</p></div>
+      </div>
+    </details>
+
+    <details class="ans locked" data-q="q4">
+      <summary><span class="lock-ico">🔒</span> Answer (locked)</summary>
+      <div class="d-body">
+        <div class="locked-msg"><p class="muted">Write your own query first. Then ask your brother for the passkey.</p><button class="open-sheet">Enter passkey</button></div>
+        <div class="ans-content"></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- Q5 -->
+<section class="q" id="q5">
+  <div class="q-head">
+    <div class="q-num">Question 5</div>
+    <h3>Peer-mentoring pairs</h3>
+    <div class="q-tags"><span>SELF JOIN</span><span>3-table JOIN</span><span>&lt; trick</span></div>
+  </div>
+  <div class="q-body">
+    <p class="scenario">The hospital is starting a peer-mentoring programme in which each doctor is paired with a colleague from the same department. Display each pair (both doctors' names) along with the department name. A doctor must not be paired with themselves, and each pair must appear only once.</p>
+
+    <details class="think-d">
+      <summary>How to think</summary>
+      <div class="d-body">
+        <ol class="steps">
+          <li><strong>Signal words:</strong> "pairs" + "same department" → comparing doctors with doctors → <code>SELF JOIN</code>: DOCTOR as <code>d1</code> and DOCTOR as <code>d2</code>, joined on <code>d1.dept_id = d2.dept_id</code>.</li>
+          <li><strong>"not with themselves" and "only once":</strong> both handled by one condition, <code>d1.doc_id &lt; d2.doc_id</code> (page 4). <code>&lt;&gt;</code> would leave the (Arjun, Meera) duplicate.</li>
+          <li><strong>"department name":</strong> a third arrow, <code>d1.dept_id → DEPARTMENT.dept_id</code>. Join DEPARTMENT once, through either alias.</li>
+          <li><strong>Join type:</strong> only real pairs are wanted → <code>INNER JOIN</code> everywhere.</li>
+          <li><strong>Predict:</strong> Cardiology has 2 doctors → 1 pair; Orthopedics 2 → 1 pair; Neurology and Pediatrics have one each → no pair. <span class="predict">Expect 2 rows</span></li>
+        </ol>
+        <div class="callout trap"><span class="lbl">Trap</span><p>Without aliases Oracle cannot tell the two copies apart and every column is "ambiguously defined". A self join is impossible without two different aliases.</p></div>
+      </div>
+    </details>
+
+    <details class="ans locked" data-q="q5">
+      <summary><span class="lock-ico">🔒</span> Answer (locked)</summary>
+      <div class="d-body">
+        <div class="locked-msg"><p class="muted">Write your own query first. Then ask your brother for the passkey.</p><button class="open-sheet">Enter passkey</button></div>
+        <div class="ans-content"></div>
+      </div>
+    </details>
+  </div>
+</section>
+
+<!-- ============================ VIVA ============================ -->
+<h2 id="viva">Viva rapid-fire</h2>
+<p>Ten marks are for viva. One sentence each is enough; say it calmly.</p>
+<dl class="viva">
+  <dt>Primary key vs foreign key?</dt><dd>A primary key uniquely identifies a row in its own table and cannot be NULL. A foreign key is a column that stores another table's primary key to link the two.</dd>
+  <dt>WHERE vs HAVING?</dt><dd>WHERE filters individual rows before grouping. HAVING filters groups after GROUP BY, so only HAVING can use COUNT, SUM or AVG.</dd>
+  <dt>INNER vs LEFT vs FULL OUTER JOIN?</dt><dd>INNER returns only matching pairs. LEFT keeps every row of the left table and pads missing matches with NULL. FULL keeps unmatched rows from both sides.</dd>
+  <dt>COUNT(*) vs COUNT(column)?</dt><dd>COUNT(*) counts rows. COUNT(column) counts non-NULL values in that column, which is why it gives 0 after a LEFT JOIN with no match.</dd>
+  <dt>DDL, DML, DCL, TCL?</dt><dd>DDL defines structure (CREATE, ALTER, DROP, TRUNCATE). DML changes data (INSERT, UPDATE, DELETE, SELECT). DCL controls access (GRANT, REVOKE). TCL controls transactions (COMMIT, ROLLBACK, SAVEPOINT).</dd>
+  <dt>What is a view?</dt><dd>A saved SELECT query that behaves like a virtual table. It stores no data of its own, so it always shows the current rows of the base tables.</dd>
+  <dt>NATURAL JOIN vs JOIN ON?</dt><dd>NATURAL JOIN automatically joins on all columns with the same name. JOIN ON lets you state the exact condition, which is safer when tables share unrelated column names.</dd>
+  <dt>What is NULL and how do you test for it?</dt><dd>NULL means the value is unknown or missing, not zero or empty. Test with IS NULL or IS NOT NULL; replace it with NVL(column, value).</dd>
+  <dt>1NF, 2NF, 3NF?</dt><dd>1NF: every cell holds one atomic value. 2NF: 1NF plus every non-key column depends on the whole primary key. 3NF: 2NF plus no non-key column depends on another non-key column.</dd>
+  <dt>COMMIT, ROLLBACK, SAVEPOINT?</dt><dd>COMMIT makes changes permanent. ROLLBACK undoes uncommitted changes. SAVEPOINT marks a point you can ROLLBACK TO without losing everything.</dd>
+  <dt>What is a cursor?</dt><dd>A PL/SQL pointer to a query's result set that lets you process rows one at a time: OPEN, FETCH in a loop, EXIT WHEN cursor%NOTFOUND, CLOSE.</dd>
+  <dt>What is a trigger? What are :NEW and :OLD?</dt><dd>A block that runs automatically BEFORE or AFTER an INSERT, UPDATE or DELETE. :NEW holds the incoming row values and :OLD the existing ones; RAISE_APPLICATION_ERROR stops the statement with a message.</dd>
+  <dt>DELETE vs TRUNCATE vs DROP?</dt><dd>DELETE removes rows and can be rolled back. TRUNCATE removes all rows quickly and cannot be rolled back. DROP removes the table itself.</dd>
+</dl>
+
+<footer>
+  <p>Built for Monday's DBMS lab. Read it twice, do the five questions once on paper and once on the keyboard, and you will walk in knowing exactly what to do with any question they hand you.</p>
+</footer>
+
+</div><!-- /wrap -->
+
+<button class="fab" id="fab" aria-haspopup="dialog">🔒 Answers locked</button>
+<div class="backdrop" id="backdrop"></div>
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <h3 id="sheet-title">Unlock the answers</h3>
+  <p class="muted" style="margin:0">Your brother has the passkey. Get it only after you have written your own attempt at all five questions.</p>
+  <input id="pass" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Passkey" inputmode="text">
+  <div class="row"><button class="btn" id="unlock">Unlock</button><button class="btn ghost" id="close">Close</button><button class="btn ghost" id="relock" hidden>Lock again</button></div>
+  <div class="msg" id="msg"></div>
+</div>
+
+<script type="application/json" id="vault">{"v":1,"iter":150000,"salt":"qn+CP3+hE5gzV9UnmkDcBA==","items":{"q1":{"iv":"XqNS30ztGOGzGAiu","ct":"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"},"q2":{"iv":"TcthiPKoGqMgZCc3","ct":"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"},"q3":{"iv":"q52AL0Ne2yxuRamh","ct":"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"},"q4":{"iv":"qgVixfD6Yeorp7kJ","ct":"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"},"q5":{"iv":"mMnRIdbb2q8G5grG","ct":"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"}}}</script>
+<script>
+(function(){
+  'use strict';
+  /* ---------- syntax highlighting ---------- */
+  var KW = ['SELECT','FROM','WHERE','JOIN','INNER','LEFT','RIGHT','FULL','OUTER','NATURAL','CROSS','ON','GROUP','BY','HAVING','ORDER','AS','AND','OR','NOT','IN','IS','NULL','DESC','ASC','CREATE','TABLE','INSERT','INTO','VALUES','PRIMARY','KEY','REFERENCES','FOREIGN','NUMBER','VARCHAR2','VARCHAR','DATE','DROP','VIEW','CASE','WHEN','THEN','ELSE','END','DISTINCT','BETWEEN','LIKE','EXISTS','UNION','COMMIT','ROLLBACK','SAVEPOINT','UPDATE','SET','DELETE','ALTER','ADD','MODIFY','TRUNCATE','DECLARE','BEGIN','CURSOR','FOR','LOOP','FETCH','OPEN','CLOSE','EXIT','IF','TRIGGER','BEFORE','AFTER','EACH','ROW','REPLACE','RETURN','FUNCTION','PROCEDURE'];
+  var FN = ['COUNT','SUM','AVG','MIN','MAX','NVL','ROUND','TO_DATE','TO_CHAR','UPPER','LOWER','SUBSTR','LENGTH','DECODE','INSTR','LPAD','RPAD','MONTHS_BETWEEN','ADD_MONTHS','SYSDATE','TRUNC','COALESCE'];
+  var re = new RegExp("(--[^\\n]*)|('(?:[^']|'')*')|(\\b\\d+(?:\\.\\d+)?\\b)|(\\b(?:" + FN.join('|') + ")\\b(?=\\s*\\())|(\\b(?:" + KW.join('|') + ")\\b)", 'gi');
+  function esc(s){ return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function hl(src){
+    return esc(src).replace(re, function(m, cm, str, num, fn, kw){
+      if (cm) return '<span class="cm">'+m+'</span>';
+      if (str) return '<span class="str">'+m+'</span>';
+      if (num) return '<span class="num">'+m+'</span>';
+      if (fn) return '<span class="fn">'+m+'</span>';
+      if (kw) return '<span class="kw">'+m+'</span>';
+      return m;
+    });
+  }
+  function decorate(root){
+    root = root || document;
+    var blocks = root.querySelectorAll('pre > code.sql');
+    for (var i=0;i<blocks.length;i++){
+      var code = blocks[i];
+      if (code.dataset.hl) continue;
+      var raw = code.textContent;
+      code.innerHTML = hl(raw);
+      code.dataset.hl = '1';
+      var pre = code.parentNode;
+      var btn = document.createElement('button');
+      btn.className = 'copy'; btn.type = 'button'; btn.textContent = 'Copy';
+      (function(b, text){
+        b.addEventListener('click', function(){
+          var done = function(){ b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy'; }, 1400); };
+          if (navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, function(){ fallback(text); done(); }); }
+          else { fallback(text); done(); }
+        });
+      })(btn, raw);
+      pre.appendChild(btn);
+    }
+  }
+  function fallback(text){
+    var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly',''); ta.style.position='fixed'; ta.style.top='-1000px';
+    document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); } catch(e){} document.body.removeChild(ta);
+  }
+  decorate();
+
+  /* ---------- checklist ticks (per device) ---------- */
+  var checks = document.querySelectorAll('.check li');
+  for (var c=0;c<checks.length;c++){
+    (function(li, idx){
+      try { if (localStorage.getItem('chk'+idx)==='1') li.classList.add('tick'); } catch(e){}
+      li.addEventListener('click', function(){ li.classList.toggle('tick'); try { localStorage.setItem('chk'+idx, li.classList.contains('tick')?'1':'0'); } catch(e){} });
+    })(checks[c], c);
+  }
+
+  /* ---------- vault ---------- */
+  var VAULT = null;
+  try { VAULT = JSON.parse(document.getElementById('vault').textContent); } catch(e){}
+  var fab = document.getElementById('fab'), sheet = document.getElementById('sheet'), backdrop = document.getElementById('backdrop');
+  var pass = document.getElementById('pass'), msg = document.getElementById('msg');
+  var btnUnlock = document.getElementById('unlock'), btnClose = document.getElementById('close'), btnRelock = document.getElementById('relock');
+  var unlocked = false;
+
+  function b64(s){ var bin = atob(s); var u = new Uint8Array(bin.length); for (var i=0;i<bin.length;i++) u[i]=bin.charCodeAt(i); return u; }
+  function norm(p){ return (p||'').trim().toLowerCase(); }
+  function subtle(){ return (window.crypto && window.crypto.subtle) ? window.crypto.subtle : null; }
+
+  async function derive(p){
+    var enc = new TextEncoder();
+    var base = await subtle().importKey('raw', enc.encode(norm(p)), 'PBKDF2', false, ['deriveKey']);
+    return subtle().deriveKey({name:'PBKDF2', salt:b64(VAULT.salt), iterations:VAULT.iter, hash:'SHA-256'}, base, {name:'AES-GCM', length:256}, false, ['decrypt']);
+  }
+  async function decryptAll(p){
+    var key = await derive(p), out = {}, dec = new TextDecoder();
+    var ids = Object.keys(VAULT.items);
+    for (var i=0;i<ids.length;i++){
+      var it = VAULT.items[ids[i]];
+      var pt = await subtle().decrypt({name:'AES-GCM', iv:b64(it.iv)}, key, b64(it.ct));
+      out[ids[i]] = dec.decode(pt);
+    }
+    return out;
+  }
+  function render(answers){
+    var els = document.querySelectorAll('details.ans');
+    for (var i=0;i<els.length;i++){
+      var d = els[i], id = d.dataset.q;
+      if (!answers[id]) continue;
+      d.querySelector('.ans-content').innerHTML = answers[id];
+      d.classList.remove('locked');
+      d.querySelector('summary').innerHTML = '<span class="lock-ico">🔓</span> Answer';
+      var lm = d.querySelector('.locked-msg'); if (lm) lm.hidden = true;
+    }
+    decorate();
+    unlocked = true;
+    fab.textContent = '🔓 Answers unlocked'; fab.classList.add('open');
+    btnRelock.hidden = false; btnUnlock.hidden = true; pass.hidden = true;
+  }
+  function relock(){
+    var els = document.querySelectorAll('details.ans');
+    for (var i=0;i<els.length;i++){
+      var d = els[i];
+      d.querySelector('.ans-content').innerHTML = '';
+      d.classList.add('locked'); d.removeAttribute('open');
+      d.querySelector('summary').innerHTML = '<span class="lock-ico">🔒</span> Answer (locked)';
+      var lm = d.querySelector('.locked-msg'); if (lm) lm.hidden = false;
+    }
+    unlocked = false; try { sessionStorage.removeItem('pk'); } catch(e){}
+    fab.textContent = '🔒 Answers locked'; fab.classList.remove('open');
+    btnRelock.hidden = true; btnUnlock.hidden = false; pass.hidden = false; pass.value=''; setMsg('', '');
+    closeSheet();
+  }
+  function setMsg(t, cls){ msg.textContent = t; msg.className = 'msg ' + (cls||''); }
+  function openSheet(){ backdrop.classList.add('show'); sheet.classList.add('show'); if (!unlocked) setTimeout(function(){ pass.focus(); }, 250); }
+  function closeSheet(){ backdrop.classList.remove('show'); sheet.classList.remove('show'); }
+
+  async function tryUnlock(p, silent){
+    if (!VAULT || !VAULT.items){ setMsg('No answers are embedded in this page.', 'err'); return false; }
+    if (!subtle()){ setMsg('Open this page over https:// (or from a deployed link) to unlock.', 'err'); return false; }
+    if (!norm(p)){ setMsg('Type the passkey first.', 'err'); return false; }
+    setMsg('Checking…', '');
+    try {
+      var answers = await decryptAll(p);
+      render(answers);
+      try { sessionStorage.setItem('pk', norm(p)); } catch(e){}
+      setMsg('Unlocked. Answers now appear under each question.', 'ok');
+      if (!silent) setTimeout(closeSheet, 700);
+      return true;
+    } catch(e){
+      if (!silent) setMsg('That passkey is not right. Check with your brother.', 'err');
+      return false;
+    }
+  }
+
+  fab.addEventListener('click', openSheet);
+  backdrop.addEventListener('click', closeSheet);
+  btnClose.addEventListener('click', closeSheet);
+  btnUnlock.addEventListener('click', function(){ tryUnlock(pass.value, false); });
+  btnRelock.addEventListener('click', relock);
+  pass.addEventListener('keydown', function(e){ if (e.key === 'Enter'){ e.preventDefault(); tryUnlock(pass.value, false); } });
+  var openers = document.querySelectorAll('.open-sheet');
+  for (var o=0;o<openers.length;o++) openers[o].addEventListener('click', function(ev){ ev.preventDefault(); openSheet(); });
+
+  try { var saved = sessionStorage.getItem('pk'); if (saved) tryUnlock(saved, true); } catch(e){}
+})();
+</script>
+</body>
+</html>
